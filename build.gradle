@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'checkstyle'
+    id 'jacoco'
 }
 
 group 'com.demo.gradle'
@@ -17,18 +18,6 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-test {
-    //显示测试期间的标准输出和错误输出
-    testLogging {
-        showStandardStreams = true
-    }
-    //配置gradle使用junit平台
-    useJUnitPlatform()
-}
-
-//可以输出默认的toolVersion
-println "checkstyle.toolVersion=" + checkstyle.toolVersion
-
 //配置checkstyle插件
 checkstyle {
     //指定com.puppycrawl.tools:checkstyle的版本
@@ -41,5 +30,40 @@ checkstyle {
     ]
 }
 
-//修改toolVersion后再次输出使用的版本
-println "checkstyle.toolVersion=" + checkstyle.toolVersion
+test {
+    //显示测试期间的标准输出和错误输出
+    testLogging {
+        showStandardStreams = true
+    }
+    //配置gradle使用junit平台
+    useJUnitPlatform()
+    //生成覆盖率报告。这里的finalizedBy表示在执行test这个任务后，紧接着执行这两个任务
+    finalizedBy jacocoTestReport
+    //检查代码覆盖率
+    finalizedBy jacocoTestCoverageVerification
+}
+
+//定义一个task，用于生成覆盖率报告
+jacocoTestReport {
+    //这里的dependsOn表示在执行jacocoTestReport任务前要先执行test任务
+    dependsOn test
+    reports {
+        html.required.set(true)
+        xml.required.set(true)
+        xml.outputLocation=file("build/reports/jacoco.xml")
+    }
+}
+
+//定义一个task，用于验证覆盖率
+jacocoTestCoverageVerification {
+    dependsOn jacocoTestReport
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE' //行覆盖率
+                value = 'COVEREDRATIO'
+                minimum = 0.00 //最低覆盖率为50%，如果低于50%则会构建失败
+            }
+        }
+    }
+}
