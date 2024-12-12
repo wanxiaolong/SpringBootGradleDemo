@@ -10,5 +10,17 @@ repositories {
 }
 
 dependencies {
+    //JUnit Jupiter API，写UT会用到
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+    //JUnit Jupiter Engine，运行UT会用到
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
 
+test {
+    //显示测试期间的标准输出和错误输出
+    testLogging {
+        showStandardStreams = true
+    }
+    //配置gradle使用junit平台
+    useJUnitPlatform()
 }
