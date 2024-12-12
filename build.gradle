@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'checkstyle'
 }
 
 group 'com.demo.gradle'
@@ -24,3 +25,21 @@ test {
     //配置gradle使用junit平台
     useJUnitPlatform()
 }
+
+//可以输出默认的toolVersion
+println "checkstyle.toolVersion=" + checkstyle.toolVersion
+
+//配置checkstyle插件
+checkstyle {
+    //指定com.puppycrawl.tools:checkstyle的版本
+    toolVersion = '10.20.2'
+    //指定google check规则文件的路径
+    configFile = file('config/checkstyle/google_checks.xml')
+    configProperties = [
+            //warning: 不会阻塞构建，error：会阻塞构建
+            "org.checkstyle.google.severity": "warning"
+    ]
+}
+
+//修改toolVersion后再次输出使用的版本
+println "checkstyle.toolVersion=" + checkstyle.toolVersion
