@@ -1,0 +1,15 @@
+#!/bin/bash
+
+echo "Running commit-msg hook to check commit message..."
+
+# 定义commit message的格式："[jira-xxx]: message"
+COMMIT_REGEX='^\[jira-\d+\]: .+'
+
+# 检查commit message是否满足给定的格式，如果不满足，则exit 1
+if ! grep -qE "$COMMIT_REGEX" "$1"; then
+    echo "ERROR: Commit message does not follow the format '[jira-xxx]: Description'"
+    exit 1
+fi
+
+echo "Commit-msg hook completed successfully"
+exit 0
