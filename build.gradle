@@ -38,6 +38,9 @@ dependencies {
     //quartz调度器会使用到的连接池
     implementation 'com.mchange:c3p0:0.10.1'
 
+    //使用flyway来管理DB的变更版本
+    implementation 'org.flywaydb:flyway-database-postgresql:11.1.0'
+
     //使用lombok
     implementation 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -50,6 +53,7 @@ dependencies {
 // 这个section是gradle的插件io.spring.dependency-management提供的，需要搭配它一起使用
 dependencyManagement {
     dependencies {
+        dependency 'ch.qos.logback:logback-classic:1.5.16'
         dependency 'ch.qos.logback:logback-core:1.5.16'
     }
 }

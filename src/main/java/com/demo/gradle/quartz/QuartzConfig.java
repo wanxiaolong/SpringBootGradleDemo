@@ -25,8 +25,8 @@ public class QuartzConfig {
 
   @Bean
   public Trigger helloJobTrigger() {
-    // 每5秒执行一次
-    CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule("0/5 * * * * ?");
+    // 每5分钟执行一次
+    CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule("* */5 * * * ?");
     return TriggerBuilder.newTrigger()
         .forJob(helloJobDetail())
         .withIdentity("helloJobTrigger", JOB_GROUP_NAME)

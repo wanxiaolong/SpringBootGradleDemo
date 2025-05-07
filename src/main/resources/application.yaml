@@ -1,4 +1,10 @@
 spring:
+  flyway:
+    enabled: true
+    locations: db/migration
+    #由于之前整合了quartz，会生成一些表来维护job的状态，所以这里flyway migrate的时候
+    #DB的schema已经不是干净的了，所以这里需要加上这个配置
+    baseline-on-migrate: true
   datasource:
     url: jdbc:postgresql://localhost:5432/demo
     username: postgres
