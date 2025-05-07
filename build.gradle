@@ -9,6 +9,8 @@ plugins {
 
     //检查代码风格的插件，和checkstyle相比它可以自动修复风格问题，推荐
     id "com.diffplug.spotless" version "6.25.0"
+    //检查代码的缺陷，coding smell
+    id "com.github.spotbugs" version "6.1.2"
 }
 
 group 'com.demo.gradle'
@@ -56,6 +58,7 @@ dependencies {
 //}
 
 //配置spotless插件
+//详见：https://github.com/diffplug/spotless/tree/main/plugin-gradle
 spotless {
     // for Java language, use GoogleJavaFormat
     java {
@@ -72,6 +75,7 @@ spotless {
         formatAnnotations()
     }
 }
+
 
 test {
     //显示测UT的标准输出和错误输出
@@ -109,4 +113,15 @@ jacocoTestCoverageVerification {
             }
         }
     }
+}
+
+//详见：https://github.com/spotbugs/spotbugs-gradle-plugin
+spotbugs {
+    ignoreFailures = false
+    showStackTraces = true
+    showProgress = true
+    //指定spotbugs的输出报告的路径
+    reportsDir = file("build/spotbugs")
+    //指定要排除的类、包
+    excludeFilter = file("spotbugs-exclude.xml")
 }
