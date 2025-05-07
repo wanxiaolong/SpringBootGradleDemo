@@ -1,0 +1,55 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/demo
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  quartz:
+    #表示任务存储方式，这里设置为 jdbc，意味着 Quartz 使用数据库来存储所有的调度信息（如作业和触发器等）。
+    job-store-type: jdbc
+    jdbc:
+      #每次启动应用时都将尝试创建或更新数据库表结构。
+      initialize-schema: always
+    properties:
+      org:
+        quartz:
+          scheduler:
+            #设置为 AUTO，Quartz会自动生成一个唯一的实例ID。
+            instanceId: AUTO
+
+            #为这个 Quartz 实例命名，这里是 ClusteredScheduler。
+            instanceName: ClusteredScheduler
+          jobStore:
+            #设置为 true，表示这个 Quartz 实例将在集群模式下运行。
+            isClustered: true
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+
+            #注意这个类，这是for postgres DB专用的类，用错了会报错。
+            #详见：https://www.quartz-scheduler.org/documentation/quartz-2.3.0/configuration/ConfigJobStoreTX.html
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+
+            #设置为 false，表示存储数据类型为 JDBC 数据类型而不是字符串。
+            useProperties: false
+
+            #指明quartz要使用的数据源，这个quartzDS将在下方定义
+            dataSource: quartzDS
+
+            #指明quartz维护数据表的前缀
+            tablePrefix: QRTZ_
+
+            #设置未触发的执行阈值为10000毫秒，如果调度迟到超过这个时间，将应用错过的策略。
+            misfireThreshold: 10000
+          threadPool:
+            #指定线程池的类型。quartz调度的时候会用到线程池。
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 10
+            threadPriority: 5
+            threadsInheritContextClassLoaderOfInitializingThread: true
+          dataSource:
+            #自定义一个数据源
+            quartzDS:
+              driver: org.postgresql.Driver
+              URL: jdbc:postgresql://localhost:5432/demo
+              user: postgres
+              password: postgres
+              maxConnections: 5

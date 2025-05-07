@@ -2,11 +2,11 @@
 
 echo "Running pre-commit hook to check commit message..."
 
-gradle checkstyleMain --offline
+./gradlew spotlessCheck
 
 # 如果上一个命令失败，则异常退出
 if [ $? -ne 0 ]; then
-    echo "Need to fix coding style issue before commit."
+    echo "Need to fix coding style issue before commit by executing ./gradlew spotlessApply."
     exit 1
 fi
 

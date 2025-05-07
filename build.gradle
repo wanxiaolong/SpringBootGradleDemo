@@ -1,10 +1,14 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.3.2'
+    id 'org.springframework.boot' version '3.4.1'
     //optional: 这个插件用来管理spring的依赖，这样在dependencies中声明springboot依赖的时候就不用写版本号了
-    //id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'checkstyle'
+    id 'io.spring.dependency-management' version '1.1.6'
+
     id 'jacoco'
+    //id 'checkstyle'
+
+    //检查代码风格的插件，和checkstyle相比它可以自动修复风格问题，推荐
+    id "com.diffplug.spotless" version "6.25.0"
 }
 
 group 'com.demo.gradle'
@@ -20,8 +24,19 @@ java {
 }
 
 dependencies {
-    //Spring
-    implementation 'org.springframework.boot:spring-boot-starter-web:3.3.2'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    //定时任务quartz
+    implementation 'org.springframework.boot:spring-boot-starter-quartz'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    //这里使用postgresql作为DB
+    runtimeOnly 'org.postgresql:postgresql'
+    //quartz调度器会使用到的连接池
+    implementation 'com.mchange:c3p0:0.10.1'
+
+    //使用lombok
+    implementation 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
     //JUnit Jupiter API，写UT会用到
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
     //JUnit Jupiter Engine，运行UT会用到
@@ -29,15 +44,33 @@ dependencies {
 }
 
 //配置checkstyle插件
-checkstyle {
-    //指定com.puppycrawl.tools:checkstyle的版本
-    toolVersion = '10.20.2'
-    //指定google check规则文件的路径
-    configFile = file('config/checkstyle/google_checks.xml')
-    configProperties = [
-            //warning: 不会阻塞构建，error：会阻塞构建
-            "org.checkstyle.google.severity": "warning"
-    ]
+//checkstyle {
+//    //指定com.puppycrawl.tools:checkstyle的版本
+//    toolVersion = '10.20.2'
+//    //指定google check规则文件的路径
+//    configFile = file('config/checkstyle/google_checks.xml')
+//    configProperties = [
+//            //warning: 不会阻塞构建，error：会阻塞构建
+//            "org.checkstyle.google.severity": "warning"
+//    ]
+//}
+
+//配置spotless插件
+spotless {
+    // for Java language, use GoogleJavaFormat
+    java {
+        importOrder()
+        removeUnusedImports()
+        // 'cleanthat' will refactor your code, but it may break your style,
+        // so need to apply it before your formatter
+        cleanthat()
+
+        // the code formatter
+        googleJavaFormat()
+
+        // this will remove incorrect newlines if multiple annotation used.
+        formatAnnotations()
+    }
 }
 
 test {
