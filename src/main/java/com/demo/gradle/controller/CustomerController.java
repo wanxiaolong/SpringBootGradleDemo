@@ -68,7 +68,7 @@ public class CustomerController {
     return ResponseEntity.noContent().build();
   }
 
-  // 根据姓氏查找
+  // 根据名字查找
   @GetMapping("/search")
   public List<Customer> findByFirstName(@RequestParam String firstName) {
     return service.findByFirstName(firstName);

@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'idea'
     id 'org.springframework.boot' version '3.4.1'
     //optional: 这个插件用来管理spring的依赖，这样在dependencies中声明springboot依赖的时候就不用写版本号了
     id 'io.spring.dependency-management' version '1.1.6'
@@ -44,10 +45,19 @@ dependencies {
     //使用lombok
     implementation 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    //-----------------测试用到的依赖------------------
     //JUnit Jupiter API，写UT会用到
     testImplementation 'org.junit.jupiter:junit-jupiter'
     //JUnit Jupiter Engine，运行UT会用到
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.junit.platform:junit-platform-launcher'
+
+    //api测试专用依赖
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    //用rest assured来更方便的测试api
+    testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:postgresql'
 }
 
 // 这个section是gradle的插件io.spring.dependency-management提供的，需要搭配它一起使用
@@ -56,6 +66,50 @@ dependencyManagement {
         dependency 'ch.qos.logback:logback-classic:1.5.16'
         dependency 'ch.qos.logback:logback-core:1.5.16'
     }
+}
+
+//定义自定义的sourceSets
+sourceSets {
+    apiTest {
+        java {
+            srcDir 'src/apiTest/java'
+        }
+        resources {
+            srcDir 'src/apiTest/resources'
+        }
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
+//为自定义的sourceSets配置依赖
+configurations {
+    apiTestImplementation.extendsFrom testImplementation
+    apiTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+//创建自定义的gradle任务来运行apiTest
+task apiTest(type: Test) {
+    description = "Run API tests"
+    group = "verification"
+
+    testClassesDirs = sourceSets.apiTest.output.classesDirs
+    classpath = sourceSets.apiTest.runtimeClasspath
+    useJUnitPlatform()
+    mustRunAfter test
+}
+
+idea {
+    module {
+        //告诉IDEA把src/apiTest/java识别为testSources目录
+        testSources.from(sourceSets.apiTest.java.srcDirs)
+        //告诉IDEA把src/apiTest/resources识别为testResources目录
+        testResources.from(sourceSets.apiTest.resources.srcDirs)
+    }
+}
+
+tasks.named('processApiTestResources') {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 //配置checkstyle插件
@@ -88,7 +142,6 @@ spotless {
         formatAnnotations()
     }
 }
-
 
 test {
     //显示测UT的标准输出和错误输出
